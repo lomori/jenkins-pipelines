@@ -2,7 +2,7 @@ node {
     git url: 'https://github.com/jfrogdev/project-examples.git'
 
     // Get Artifactory server instance, defined in the Artifactory Plugin administration page.
-    def server = Artifactory.server "Artifactory Dev"
+    def server = Artifactory.server "artifactory-dev"
 
     // Read the upload spec and upload files to Artifactory.
     def downloadSpec =
