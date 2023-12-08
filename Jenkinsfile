@@ -1,45 +1,30 @@
-node {
-    git url: 'https://github.com/jfrogdev/project-examples.git'
+podTemplate(containers: [
+    containerTemplate(name: 'maven', image: 'maven:3.8.1-jdk-8', command: 'sleep', args: '99d'),
+    containerTemplate(name: 'golang', image: 'golang:1.16.5', command: 'sleep', args: '99d')
+  ]) {
 
-    // Get Artifactory server instance, defined in the Artifactory Plugin administration page.
-    def server = Artifactory.server "artifactory-dev"
-
-    // Read the upload spec and upload files to Artifactory.
-    def downloadSpec =
-            '''{
-            "files": [
-                {
-                    "pattern": "libs-snapshot-local/*.zip",
-                    "target": "dependencies/",
-                    "props": "p1=v1;p2=v2"
+    node(POD_LABEL) {
+        stage('Get a Maven project') {
+            git 'https://github.com/jenkinsci/kubernetes-plugin.git'
+            container('maven') {
+                stage('Build a Maven project') {
+                    sh 'mvn -B -ntp clean install'
                 }
-            ]
-        }'''
+            }
+        }
 
-    def buildInfo1 = server.download spec: downloadSpec
-
-    // Read the upload spec which was downloaded from github.
-    def uploadSpec =
-            '''{
-            "files": [
-                {
-                    "pattern": "resources/Kermit.*",
-                    "target": "libs-snapshot-local",
-                    "props": "p1=v1;p2=v2"
-                },
-                {
-                    "pattern": "resources/Frogger.*",
-                    "target": "libs-snapshot-local"
+        stage('Get a Golang project') {
+            git url: 'https://github.com/hashicorp/terraform.git', branch: 'main'
+            container('golang') {
+                stage('Build a Go project') {
+                    sh '''
+                    mkdir -p /go/src/github.com/hashicorp
+                    ln -s `pwd` /go/src/github.com/hashicorp/terraform
+                    cd /go/src/github.com/hashicorp/terraform && make
+                    '''
                 }
-            ]
-        }'''
+            }
+        }
 
-    // Upload to Artifactory.
-    def buildInfo2 = server.upload spec: uploadSpec
-
-    // Merge the upload and download build-info objects.
-    buildInfo1.append buildInfo2
-
-    // Publish the build to Artifactory
-    server.publishBuildInfo buildInfo1
+    }
 }
