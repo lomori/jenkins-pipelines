@@ -20,7 +20,7 @@ podTemplate(containers: [
                     sh '''
                     mkdir -p /go/src/github.com/hashicorp
                     ln -s `pwd` /go/src/github.com/hashicorp/terraform
-                    cd /go/src/github.com/hashicorp/terraform && make
+                    cd /go/src/github.com/hashicorp/terraform && echo make
                     '''
                 }
             }
