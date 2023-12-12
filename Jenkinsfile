@@ -1,26 +1,35 @@
 podTemplate(containers: [
-    containerTemplate(name: 'maven', image: 'maven:3.8.1-jdk-8', command: 'sleep', args: '99d'),
-    containerTemplate(name: 'golang', image: 'golang:1.16.5', command: 'sleep', args: '99d')
+    containerTemplate(
+        name: 'maven', 
+        image: 'maven:3.8.1-jdk-8', 
+        command: 'sleep', 
+        args: '30d'
+        ),
+    containerTemplate(
+        name: 'python', 
+        image: 'python:latest', 
+        command: 'sleep', 
+        args: '30d')
   ]) {
 
     node(POD_LABEL) {
         stage('Get a Maven project') {
-            git 'https://github.com/jenkinsci/kubernetes-plugin.git'
+            git 'https://github.com/spring-projects/spring-petclinic.git'
             container('maven') {
                 stage('Build a Maven project') {
-                    sh 'echo mvn -B -ntp clean install'
+                    sh '''
+                    echo "maven build"
+                    '''
                 }
             }
         }
 
-        stage('Get a Golang project') {
+        stage('Get a Python Project') {
             git url: 'https://github.com/hashicorp/terraform.git', branch: 'main'
-            container('golang') {
+            container('python') {
                 stage('Build a Go project') {
                     sh '''
-                    mkdir -p /go/src/github.com/hashicorp
-                    ln -s `pwd` /go/src/github.com/hashicorp/terraform
-                    cd /go/src/github.com/hashicorp/terraform && echo make
+                    echo "Go Build"
                     '''
                 }
             }
