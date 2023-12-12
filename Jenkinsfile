@@ -1,7 +1,7 @@
 podTemplate(containers: [
     containerTemplate(
         name: 'maven', 
-        image: 'maven:3.8.1-jdk-8', 
+        image: 'maven:latest', 
         command: 'sleep', 
         args: '30d'
         ),
@@ -18,7 +18,7 @@ podTemplate(containers: [
             container('maven') {
                 stage('Build a Maven project') {
                     sh '''
-                    echo "maven build"
+                    echo "mvn package"
                     '''
                 }
             }
