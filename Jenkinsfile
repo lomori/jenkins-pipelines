@@ -1,39 +1,20 @@
-podTemplate(containers: [
-    containerTemplate(
-        name: 'maven', 
-        image: 'maven:latest', 
-        command: 'sleep', 
-        args: '30d'
-        ),
-    containerTemplate(
-        name: 'python', 
-        image: 'python:latest', 
-        command: 'sleep', 
-        args: '30d')
-  ]) {
-
-    node(POD_LABEL) {
-        stage('Get a Maven project') {
-            git 'https://github.com/spring-projects/spring-petclinic.git'
-            container('maven') {
-                stage('Build a Maven project') {
-                    sh '''
-                    echo "mvn package"
-                    '''
-                }
+pipeline {
+  agent {
+    kubernetes {
+      //cloud 'kubernetes'
+      containerTemplate {
+        name 'node'
+        image 'node:20.10.0-alpine3.19'
+        command 'sleep'
+        args '99d'
+      }
+    }
+  }
+    stages {
+        stage('Test') {
+            steps {
+                sh 'node --version'
             }
         }
-
-        stage('Get a Python Project') {
-            git url: 'https://github.com/hashicorp/terraform.git', branch: 'main'
-            container('python') {
-                stage('Build a Go project') {
-                    sh '''
-                    echo "Go Build"
-                    '''
-                }
-            }
-        }
-
     }
 }
